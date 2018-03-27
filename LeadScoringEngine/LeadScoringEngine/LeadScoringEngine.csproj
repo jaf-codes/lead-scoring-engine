@@ -42,6 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleDisplayer.cs" />
+    <Compile Include="FileLoading\FileLoader.cs" />
+    <Compile Include="FileLoading\Serializable.cs" />
+    <Compile Include="Display\TextDisplayer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
