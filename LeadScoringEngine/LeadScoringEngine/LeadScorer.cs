@@ -28,11 +28,15 @@ namespace LeadScoringEngine
     {
         internal Dictionary<int, LeadScore> Scores { get; private set; }
         internal decimal RunningTotal { get; private set; }
+        internal decimal Highest { get; private set; }
+        internal decimal Lowest { get; private set; }
 
         public LeadScorer()
         {
             Scores = new Dictionary<int, LeadScore>();
             RunningTotal = 0;
+            Highest = 0;
+            Lowest = 0;
         }
 
         public IEnumerable<LeadScore> ScoreLeads(IEnumerable<SalesLead> leads)
@@ -42,11 +46,25 @@ namespace LeadScoringEngine
                 decimal score = ScoreLead(lead);
                 Scores[lead.Id].Score += score;
                 RunningTotal += score;
+
+                if (score > Highest)
+                {
+                    Highest = score;
+                }
+                else if (score < Lowest)
+                {
+                    Lowest = score;
+                }
             }
+
+            QuartileCalculator calculator = new QuartileCalculator(Convert.ToInt32(Highest), Convert.ToInt32(Lowest), Convert.ToInt32(RunningTotal / leads.Count()));
+            Quartile quartile = calculator.CalculateQuartile();
 
             foreach (LeadScore score in Scores.Values)
             {
-                //score.Quartile = FindQuartile();
+                int normalizedScore = calculator.NormalizeScore(score.Score);
+                score.Score = normalizedScore;
+                score.Quartile = FindQuartile(normalizedScore, quartile);
             }
 
             return Scores.Values;
@@ -79,17 +97,17 @@ namespace LeadScoringEngine
             }
         }
 
-        public string FindQuartile(int normalizedScore, int quartile1, int quartile2, int quartile3)
+        public string FindQuartile(int normalizedScore, Quartile quartile)
         {
-            if (normalizedScore > quartile1)
+            if (normalizedScore > quartile.Quartile3)
             {
                 return PLATINUM;
             }
-            else if (normalizedScore > quartile2)
+            else if (normalizedScore > quartile.Quartile2)
             {
                 return GOLD;
             }
-            else if (normalizedScore > quartile3)
+            else if (normalizedScore > quartile.Quartile1)
             {
                 return SILVER;
             }
