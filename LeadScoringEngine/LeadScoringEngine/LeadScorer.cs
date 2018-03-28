@@ -55,30 +55,9 @@ namespace LeadScoringEngine
                 }
             }
 
-            List<LeadScore> sortedScores = Scores.Values.OrderBy(f => f.Score).ToList();
-            int numberOfScores = sortedScores.Count;
-
-            int quartile1Order = Convert.ToInt32(Math.Floor(.75m * numberOfScores));
-            decimal quartile1 = sortedScores[quartile1Order].Score;
-
-            int quartile2Order = Convert.ToInt32(.50m * numberOfScores);
-            decimal quartile2 = sortedScores[quartile2Order].Score;
-
-            int quartile3Order = Convert.ToInt32(.25m * numberOfScores);
-            decimal quartile3 = sortedScores[quartile3Order].Score;
-
-            Quartile quartile = new Quartile()
-            {
-                Quartile3 = quartile1,
-                Quartile2 = quartile2,
-                Quartile1 = quartile3
-            };
-
             foreach (LeadScore score in Scores.Values)
             {
-                int normalizedScore = Convert.ToInt32((score.Score / (Highest - Lowest)) * 100);
-                score.Score = normalizedScore;
-                score.Quartile = FindQuartile(normalizedScore, quartile);
+                score.Quartile = FindQuartile(score.Score, Scores.Values.Select(sc => sc.Score).ToList());
             }
 
             return Scores.Values;
@@ -111,17 +90,21 @@ namespace LeadScoringEngine
             }
         }
 
-        public string FindQuartile(int normalizedScore, Quartile quartile)
+        public string FindQuartile(decimal rawScore, List<decimal> elements)
         {
-            if (normalizedScore > quartile.Quartile3)
+            decimal quartile2 = (elements.Max() + elements.Min()) / 2;
+            decimal quartile3 = (elements.Max() + quartile2) / 2;
+            decimal quartile1 = (quartile2 + elements.Min()) / 2;
+
+            if (rawScore > quartile3)
             {
                 return PLATINUM;
             }
-            else if (normalizedScore > quartile.Quartile2)
+            else if (rawScore > quartile2)
             {
                 return GOLD;
             }
-            else if (normalizedScore > quartile.Quartile1)
+            else if (rawScore > quartile1)
             {
                 return SILVER;
             }

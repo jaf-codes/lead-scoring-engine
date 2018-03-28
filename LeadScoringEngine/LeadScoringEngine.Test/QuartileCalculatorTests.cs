@@ -6,6 +6,10 @@ namespace LeadScoringEngine.Test
     [TestClass]
     public class QuartileCalculatorTests
     {
+        [TestMethod]
+        public void CalculatePercentile()
+        {
 
+        }
     }
 }

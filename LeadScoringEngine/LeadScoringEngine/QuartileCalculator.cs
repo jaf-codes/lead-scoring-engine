@@ -12,4 +12,8 @@ namespace LeadScoringEngine
         public decimal Quartile2 { get; set; }
         public decimal Quartile1 { get; set; }
     }
+
+    public static class PercentileCalculator
+    {
+    }
 }
