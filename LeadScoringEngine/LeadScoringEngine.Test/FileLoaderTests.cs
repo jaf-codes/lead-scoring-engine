@@ -86,7 +86,6 @@ namespace LeadScoringEngine.Test
             return true;
         }
 
-        #region Edge Cases
         [TestMethod]
         public void FileLoader_LoadFromFile_Null()
         {
@@ -171,6 +170,5 @@ namespace LeadScoringEngine.Test
             CheckErrorMessages(displayer);
             Assert.IsTrue(AreEqual(expected, actual));
         }
-        #endregion
     }
 }
