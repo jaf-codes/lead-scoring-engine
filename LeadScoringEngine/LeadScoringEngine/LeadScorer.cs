@@ -28,15 +28,13 @@ namespace LeadScoringEngine
     {
         internal Dictionary<int, LeadScore> Scores { get; private set; }
         internal decimal RunningTotal { get; private set; }
-        internal decimal Highest { get; private set; }
-        internal decimal Lowest { get; private set; }
+        internal decimal? Highest { get; private set; }
+        internal decimal? Lowest { get; private set; }
 
         public LeadScorer()
         {
             Scores = new Dictionary<int, LeadScore>();
             RunningTotal = 0;
-            Highest = 0;
-            Lowest = 0;
         }
 
         public IEnumerable<LeadScore> ScoreLeads(IEnumerable<SalesLead> leads)
@@ -47,22 +45,38 @@ namespace LeadScoringEngine
                 Scores[lead.Id].Score += score;
                 RunningTotal += score;
 
-                if (score > Highest)
+                if (Highest == null || score > Highest)
                 {
                     Highest = score;
                 }
-                else if (score < Lowest)
+                else if (Lowest == null || score < Lowest)
                 {
                     Lowest = score;
                 }
             }
 
-            QuartileCalculator calculator = new QuartileCalculator(Convert.ToInt32(Highest), Convert.ToInt32(Lowest), Convert.ToInt32(RunningTotal / leads.Count()));
-            Quartile quartile = calculator.CalculateQuartile();
+            List<LeadScore> sortedScores = Scores.Values.OrderBy(f => f.Score).ToList();
+            int numberOfScores = sortedScores.Count;
+
+            int quartile1Order = Convert.ToInt32(Math.Floor(.75m * numberOfScores));
+            decimal quartile1 = sortedScores[quartile1Order].Score;
+
+            int quartile2Order = Convert.ToInt32(.50m * numberOfScores);
+            decimal quartile2 = sortedScores[quartile2Order].Score;
+
+            int quartile3Order = Convert.ToInt32(.25m * numberOfScores);
+            decimal quartile3 = sortedScores[quartile3Order].Score;
+
+            Quartile quartile = new Quartile()
+            {
+                Quartile3 = quartile1,
+                Quartile2 = quartile2,
+                Quartile1 = quartile3
+            };
 
             foreach (LeadScore score in Scores.Values)
             {
-                int normalizedScore = calculator.NormalizeScore(score.Score);
+                int normalizedScore = Convert.ToInt32((score.Score / (Highest - Lowest)) * 100);
                 score.Score = normalizedScore;
                 score.Quartile = FindQuartile(normalizedScore, quartile);
             }
