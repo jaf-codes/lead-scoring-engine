@@ -14,6 +14,11 @@ namespace LeadScoringEngine
         public string Event { get; set; }
         public decimal Score { get; set; }
 
+        public override string ToString()
+        {
+            return string.Format("{0}, {1}, {2}", Id, Event, Score);
+        }
+
         public static SalesLead Deserialize(string fileLine)
         {
             if (string.IsNullOrWhiteSpace(fileLine))
