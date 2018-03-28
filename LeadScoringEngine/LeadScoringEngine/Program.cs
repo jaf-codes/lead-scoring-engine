@@ -13,15 +13,14 @@ namespace LeadScoringEngine
     {
         public static void Main(string[] args)
         {
-            FileLoader<SalesLead> loader = new FileLoader<SalesLead>(new ConsoleDisplayer());
+            ITextDisplayer displayer = new ConsoleDisplayer();
+            FileLoader<SalesLead> loader = new FileLoader<SalesLead>(displayer);
 
             IEnumerable<SalesLead> salesLeads = loader.LoadFromFile(args[0], SalesLead.Deserialize);
 
-
-
-            foreach (SalesLead salesLead in salesLeads)
+            foreach (LeadScore score in new LeadScorer().ScoreLeads(salesLeads))
             {
-
+                displayer.Display(score.ToString());
             }
         }
     }

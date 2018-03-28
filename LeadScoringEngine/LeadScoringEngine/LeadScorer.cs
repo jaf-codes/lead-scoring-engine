@@ -28,43 +28,30 @@ namespace LeadScoringEngine
     {
         internal Dictionary<int, LeadScore> Scores { get; private set; }
         internal decimal RunningTotal { get; private set; }
-        internal decimal Highest { get; private set; }
-        internal decimal Lowest { get; private set; }
+        internal decimal? Highest { get; private set; }
+        internal decimal? Lowest { get; private set; }
 
         public LeadScorer()
         {
             Scores = new Dictionary<int, LeadScore>();
             RunningTotal = 0;
-            Highest = 0;
-            Lowest = 0;
         }
 
         public IEnumerable<LeadScore> ScoreLeads(IEnumerable<SalesLead> leads)
         {
             foreach (SalesLead lead in leads)
             {
-                decimal score = ScoreLead(lead);
-                Scores[lead.Id].Score += score;
-                RunningTotal += score;
-
-                if (score > Highest)
-                {
-                    Highest = score;
-                }
-                else if (score < Lowest)
-                {
-                    Lowest = score;
-                }
+                decimal score = ScoreLead(lead); //This creates an entry if there isn't one
+                Scores[lead.Id].Score += score; //Please don't eliminate a double from the stack
             }
 
-            QuartileCalculator calculator = new QuartileCalculator(Convert.ToInt32(Highest), Convert.ToInt32(Lowest), Convert.ToInt32(RunningTotal / leads.Count()));
-            Quartile quartile = calculator.CalculateQuartile();
+            PercentileCalculator calculator = new PercentileCalculator(Scores.Values.Select(sc => sc.Score).ToList());
 
             foreach (LeadScore score in Scores.Values)
             {
-                int normalizedScore = calculator.NormalizeScore(score.Score);
+                int normalizedScore = calculator.CalculatePercentile(score.Score);
                 score.Score = normalizedScore;
-                score.Quartile = FindQuartile(normalizedScore, quartile);
+                score.Quartile = FindQuartile(normalizedScore);
             }
 
             return Scores.Values;
@@ -97,17 +84,17 @@ namespace LeadScoringEngine
             }
         }
 
-        public string FindQuartile(int normalizedScore, Quartile quartile)
+        public string FindQuartile(int percentile)
         {
-            if (normalizedScore > quartile.Quartile3)
+            if (percentile > 75)
             {
                 return PLATINUM;
             }
-            else if (normalizedScore > quartile.Quartile2)
+            else if (percentile > 50)
             {
                 return GOLD;
             }
-            else if (normalizedScore > quartile.Quartile1)
+            else if (percentile > 25)
             {
                 return SILVER;
             }
