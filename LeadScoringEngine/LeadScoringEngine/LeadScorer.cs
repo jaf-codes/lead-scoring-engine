@@ -41,23 +41,17 @@ namespace LeadScoringEngine
         {
             foreach (SalesLead lead in leads)
             {
-                decimal score = ScoreLead(lead);
-                Scores[lead.Id].Score += score;
-                RunningTotal += score;
-
-                if (Highest == null || score > Highest)
-                {
-                    Highest = score;
-                }
-                else if (Lowest == null || score < Lowest)
-                {
-                    Lowest = score;
-                }
+                decimal score = ScoreLead(lead); //This creates an entry if there isn't one
+                Scores[lead.Id].Score += score; //Please don't eliminate a double from the stack
             }
+
+            PercentileCalculator calculator = new PercentileCalculator(Scores.Values.Select(sc => sc.Score).ToList());
 
             foreach (LeadScore score in Scores.Values)
             {
-                score.Quartile = FindQuartile(score.Score, Scores.Values.Select(sc => sc.Score).ToList());
+                int normalizedScore = calculator.CalculatePercentile(score.Score);
+                score.Score = normalizedScore;
+                score.Quartile = FindQuartile(normalizedScore);
             }
 
             return Scores.Values;
@@ -90,21 +84,17 @@ namespace LeadScoringEngine
             }
         }
 
-        public string FindQuartile(decimal rawScore, List<decimal> elements)
+        public string FindQuartile(int percentile)
         {
-            decimal quartile2 = (elements.Max() + elements.Min()) / 2;
-            decimal quartile3 = (elements.Max() + quartile2) / 2;
-            decimal quartile1 = (quartile2 + elements.Min()) / 2;
-
-            if (rawScore > quartile3)
+            if (percentile > 75)
             {
                 return PLATINUM;
             }
-            else if (rawScore > quartile2)
+            else if (percentile > 50)
             {
                 return GOLD;
             }
-            else if (rawScore > quartile1)
+            else if (percentile > 25)
             {
                 return SILVER;
             }
