@@ -45,8 +45,10 @@
     <Compile Include="ConsoleDisplayer.cs" />
     <Compile Include="FileLoading\FileLoader.cs" />
     <Compile Include="Display\TextDisplayer.cs" />
+    <Compile Include="LeadScorer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QuartileCalculator.cs" />
     <Compile Include="SalesLead.cs" />
   </ItemGroup>
   <ItemGroup>

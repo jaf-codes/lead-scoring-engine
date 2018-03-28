@@ -52,6 +52,7 @@
     <Compile Include="MockObjects\TestTextDisplayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SalesLeadTests.cs" />
+    <Compile Include="LeadScorerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

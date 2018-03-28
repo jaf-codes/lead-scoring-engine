@@ -57,6 +57,11 @@ namespace LeadScoringEngine
             return Convert.ToInt32((Id * 7) + Event.GetHashCode() + (Score * 13));
         }
 
+        public const string WEB = "web";
+        public const string EMAIL = "email";
+        public const string SOCIAL = "social";
+        public const string WEBINAR = "webinar";
+
         internal const string NO_DATA_MESSAGE = "Text contained no data";
         internal const string NO_DELIMETER_MESSAGE = "Text did not contain the following necessary delimeter: " + delimiter;
         internal const string INSUFFICIENT_DATA_MESSAGE = "Text did not contain the correct number of elements: " + elements;
